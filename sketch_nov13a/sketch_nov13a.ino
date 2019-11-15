@@ -77,109 +77,17 @@ void loop()
     // Verifica se algo está entrando na esteira 1
     if (algoEntrandoEsteira1)
     {
-      if (sinal1 && !sinal2) // Se algo está entrando e sinal 1,0 -> passo 1
-      {
-        // Algo entrando na esteira 1 no primeiro passo
-        entrandoEsteira1Passo1 = true ;
-        entrandoEsteira1Passo2 = false;
-        entrandoEsteira1Passo3 = false;
-      }
-      else if (sinal1 && sinal2) // Se algo está entrando e sinal 1,1 -> passo 2
-      {
-        // Algo entrando na esteira 1 no segundo passo
-        entrandoEsteira1Passo1 = false;
-        entrandoEsteira1Passo2 = true ;
-        entrandoEsteira1Passo3 = false;
-      }
-      else if (!sinal1 && sinal2) // Se algo está entrando e sinal 0,1 -> passo 3
-      {
-        // Algo entrando na esteira 1 no terceiro passo
-        entrandoEsteira1Passo1 = false;
-        entrandoEsteira1Passo2 = false;
-        entrandoEsteira1Passo3 = true ;
-      }
-      else if (!sinal1 && !sinal2 && entrandoEsteira1Passo3) // Se algo está entrando, o sinal é 0,0 e estava no passo 3 -> entrou
-      {
-        // Algo entrou na esteira 1
-        qtdItensEsteira1 = qtdItensEsteira1 + 1;
-        entrandoEsteira1Passo1 = false;
-        entrandoEsteira1Passo2 = false;
-        entrandoEsteira1Passo3 = false;
-      }
-      else if (!sinal1 && !sinal2)  // Se algo está entrando e sinal 0,0 -> objeto voltou pra fora
-      {
-        // Algo estava entrando na esteira voltou pra fora
-        algoEntrandoEsteira1 = false;
-        entrandoEsteira1Passo1 = false;
-        entrandoEsteira1Passo2 = false;
-        entrandoEsteira1Passo3 = false;
-      }
+      acompanhaEntrandoEsteira1();
     }
     // Verifica se algo está saindo da esteira 1
     else if (algoSaindoEsteira1)
     {
-      if (!sinal1 && sinal2) // Se algo está saindo e sinal 0,1 -> passo 1
-      {
-        // Algo saindo da esteira 1 no primeiro passo de saída
-        saindoEsteira1Passo1 = true;
-        saindoEsteira1Passo2 = false;
-        saindoEsteira1Passo3 = false;
-      }
-      else if (sinal1 && sinal2) // Se algo está saindo e sinal 1,1 -> passo 2
-      {
-        // Algo saindo da esteira 1 no segundo passo de saída
-        saindoEsteira1Passo1 = false;
-        saindoEsteira1Passo2 = true;
-        saindoEsteira1Passo3 = false;
-      }
-      else if (sinal1 && !sinal2) // Se algo está saindo e sinal 1,0 -> passo 3
-      {
-        // Algo saindo da esteira 1 no terceiro passo de saída
-        saindoEsteira1Passo1 = false;
-        saindoEsteira1Passo2 = false;
-        saindoEsteira1Passo3 = true;
-      }
-      else if (!sinal1 && !sinal2 && saindoEsteira1Passo3) // Se algo está saindo, o sinal é 0,0 e estava no passo 3 -> saiu
-      {
-        if (!qtdItensEsteira1) // Se haviam zero itens na esteira
-        {
-          // Impossível algo ter saído de lá
-          Serial.println("Situação impossível!!! Não havia nada na esteira.");
-        }
-        else // Caso contrário
-        {
-          // Algo saiu da esteira
-          qtdItensEsteira1 = qtdItensEsteira1 - 1;
-        }
-        saindoEsteira1Passo1 = false;
-        saindoEsteira1Passo2 = false;
-        saindoEsteira1Passo3 = false;
-      }
-      else if (!sinal1 && !sinal2) // Se algo está saindo e sinal 0,0 -> objeto voltou para dentro
-      {
-        // Algo que estava saindo da esteira voltou para dentro
-        algoSaindoEsteira1 = false;
-        saindoEsteira1Passo1 = false;
-        saindoEsteira1Passo2 = false;
-        saindoEsteira1Passo3 = false;
-      }
+      acompanhaSaindoEsteira1();
     }
-    // Se não tiver nada entrando nem saindo
+    // Se não tiver nada entrando nem saindo da esteira 1
     else
     {
-      if (sinal1 && !sinal2) // Verifica se agora tem algo entrando
-      {
-        algoEntrandoEsteira1 = true;
-      }
-      else if (!sinal1 && sinal2) // Ou se agora tem algo saindo
-      {
-        algoSaindoEsteira1 = true;
-      }
-      else  // Ou se continua sem ter algo entrando ou saindo
-      {
-        algoEntrandoEsteira1 = false;
-        algoSaindoEsteira1 = false;
-      }
+      verificaEsteira1();
     }
   }
 
@@ -216,5 +124,112 @@ void loop()
     // Imprime a quantidade de itens na esteira 2
     Serial.print("Esteira 2: ");
     Serial.println(qtdItensEsteira2);
+  }
+}
+
+void acompanhaEntrandoEsteira1()
+{
+  if (sinal1 && !sinal2) // Se algo está entrando e sinal 1,0 -> passo 1
+  {
+    // Algo entrando na esteira 1 no primeiro passo
+    entrandoEsteira1Passo1 = true ;
+    entrandoEsteira1Passo2 = false;
+    entrandoEsteira1Passo3 = false;
+  }
+  else if (sinal1 && sinal2) // Se algo está entrando e sinal 1,1 -> passo 2
+  {
+    // Algo entrando na esteira 1 no segundo passo
+    entrandoEsteira1Passo1 = false;
+    entrandoEsteira1Passo2 = true ;
+    entrandoEsteira1Passo3 = false;
+  }
+  else if (!sinal1 && sinal2) // Se algo está entrando e sinal 0,1 -> passo 3
+  {
+    // Algo entrando na esteira 1 no terceiro passo
+    entrandoEsteira1Passo1 = false;
+    entrandoEsteira1Passo2 = false;
+    entrandoEsteira1Passo3 = true ;
+  }
+  else if (!sinal1 && !sinal2 && entrandoEsteira1Passo3) // Se algo está entrando, o sinal é 0,0 e estava no passo 3 -> entrou
+  {
+    // Algo entrou na esteira 1
+    qtdItensEsteira1 = qtdItensEsteira1 + 1;
+    entrandoEsteira1Passo1 = false;
+    entrandoEsteira1Passo2 = false;
+    entrandoEsteira1Passo3 = false;
+  }
+  else if (!sinal1 && !sinal2)  // Se algo está entrando e sinal 0,0 -> objeto voltou pra fora
+  {
+    // Algo estava entrando na esteira voltou pra fora
+    algoEntrandoEsteira1 = false;
+    entrandoEsteira1Passo1 = false;
+    entrandoEsteira1Passo2 = false;
+    entrandoEsteira1Passo3 = false;
+  }
+}
+
+void acompanhaSaindoEsteira1()
+{
+  if (!sinal1 && sinal2) // Se algo está saindo e sinal 0,1 -> passo 1
+  {
+    // Algo saindo da esteira 1 no primeiro passo de saída
+    saindoEsteira1Passo1 = true;
+    saindoEsteira1Passo2 = false;
+    saindoEsteira1Passo3 = false;
+  }
+  else if (sinal1 && sinal2) // Se algo está saindo e sinal 1,1 -> passo 2
+  {
+    // Algo saindo da esteira 1 no segundo passo de saída
+    saindoEsteira1Passo1 = false;
+    saindoEsteira1Passo2 = true;
+    saindoEsteira1Passo3 = false;
+  }
+  else if (sinal1 && !sinal2) // Se algo está saindo e sinal 1,0 -> passo 3
+  {
+    // Algo saindo da esteira 1 no terceiro passo de saída
+    saindoEsteira1Passo1 = false;
+    saindoEsteira1Passo2 = false;
+    saindoEsteira1Passo3 = true;
+  }
+  else if (!sinal1 && !sinal2 && saindoEsteira1Passo3) // Se algo está saindo, o sinal é 0,0 e estava no passo 3 -> saiu
+  {
+    if (!qtdItensEsteira1) // Se haviam zero itens na esteira
+    {
+      // Impossível algo ter saído de lá
+      Serial.println("Situação impossível!!! Não havia nada na esteira.");
+    }
+    else // Caso contrário
+    {
+      // Algo saiu da esteira
+      qtdItensEsteira1 = qtdItensEsteira1 - 1;
+    }
+    saindoEsteira1Passo1 = false;
+    saindoEsteira1Passo2 = false;
+    saindoEsteira1Passo3 = false;
+  }
+  else if (!sinal1 && !sinal2) // Se algo está saindo e sinal 0,0 -> objeto voltou para dentro
+  {
+    // Algo que estava saindo da esteira voltou para dentro
+    algoSaindoEsteira1 = false;
+    saindoEsteira1Passo1 = false;
+    saindoEsteira1Passo2 = false;
+    saindoEsteira1Passo3 = false;
+  }
+}
+
+void verificaEsteira1()
+{
+  if (sinal1 && !sinal2) // Verifica se agora tem algo entrando
+  {
+    algoEntrandoEsteira1 = true;
+  }
+  else if (!sinal1 && sinal2) // Ou se agora tem algo saindo
+  {
+    algoSaindoEsteira1 = true;
+  }
+  else  // Ou se continua sem ter algo entrando ou saindo
+  {
+    algoEntrandoEsteira1 = false;
+    algoSaindoEsteira1 = false;
   }
 }
