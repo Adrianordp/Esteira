@@ -1,127 +1,220 @@
+// DEFINIÇÃO DE VARIÁVEIS -----------------------------------------------
+// Registra portas digitais onde os sensores estão ligados
 int infra1 = 2;
 int infra2 = 3;
 int infra3 = 11;
 int infra4 = 12;
 
-boolean sinal1;
-boolean sinal2;
-boolean sinal3;
-boolean sinal4;
+// Registra o estado lógico de cada sensor
+boolean sinal1; // 0: nada na frente, 1: algo na frente
+boolean sinal2; // 0: nada na frente, 1: algo na frente
+boolean sinal3; // 0: nada na frente, 1: algo na frente
+boolean sinal4; // 0: nada na frente, 1: algo na frente
 
-boolean entrando1Esteira1;
-boolean entrando2Esteira1;
-boolean entrando3Esteira1;
-boolean entrando1Esteira2;
-boolean entrando2Esteira2;
-boolean entrando3Esteira2;
+// Registra quando tem algo entrando ou saindo de cada esteira
+boolean algoEntrandoEsteira1; // 0: nada entrando na esteira 1, 1: algo está entrando na esteira 1
+boolean algoEntrandoEsteira2; // 0: nada entrando na esteira 2, 1: algo está entrando na esteira 2
+boolean algoSaindoEsteira1  ; // 0: nada saindo da esteira 1, 1: algo está saindo da esteira 1
+boolean algoSaindoEsteira2  ; // 0: nada saindo da esteira 2, 1: algo está saindo da esteira 2
 
-boolean saindo1Esteira1;
-boolean saindo2Esteira1;
-boolean saindo3Esteira1;
-boolean saindo1Esteira2;
-boolean saindo2Esteira2;
-boolean saindo3Esteira2;
+// Caminho lógico que o item faz ao entrar ou sair da esteira
+//     Entrando             Saindo
+// (externo,interno)  (externo,interno)
+//        0,0                0,0
+//        1,0 passo 1        0,1 passo 1
+//        1,1 passo 2        1,1 passo 2
+//        0,1 passo 3        1,0 passo 3
+//        0,0 entrou         0,0 saiu
+// Registra em qual etapa de entrada ou saída o objeto se encontra
+boolean entrandoEsteira1Passo1; // 1: Apenas o sensor mais externo encontra o objeto
+boolean entrandoEsteira1Passo2; // 1: Após o passo 1, ambos os sensores encontram o objeto
+boolean entrandoEsteira1Passo3; // 1: Após o passo 2, apenas o sensor mais interno encontra o objeto
+// Após o passo 3, se os sensores retornarem (0,0), o objeto entrou
 
-unsigned int quantidadeEsteira1;
+boolean entrandoEsteira2Passo1; // Mesma ideia do objeto entrando na esteira 1
+boolean entrandoEsteira2Passo2; //
+boolean entrandoEsteira2Passo3; //
 
+boolean saindoEsteira1Passo1; // 1: Apenas o sensor mais interno encontra o objeto
+boolean saindoEsteira1Passo2; // 1: Após o passo 1, ambos os sensores encontram o objeto
+boolean saindoEsteira1Passo3; // 1: Após o passo 2, apenas o sensor mais externo encontra o objeto
+// Após o passo 3, se os sensores retornarem (0,0), o objeto saiu
+
+boolean saindoEsteira2Passo1; // Mesma ideia do objeto saindo da esteira 1
+boolean saindoEsteira2Passo2; //
+boolean saindoEsteira2Passo3; //
+
+// Registra quantos itens exitem após a esteira. 'unsigned' significa que o número deve ser positivo
+unsigned int qtdItensEsteira1;
+unsigned int qtdItensEsteira2;
+
+// Registra o tempo de funcionamento em milissegundos. 'long' é para aceitar números maiores
 unsigned long timer1;
 unsigned long timer2;
-unsigned long timer3;
-unsigned long timer4;
 
 void setup()
 {
-    pinMode(infra1, INPUT);
-    pinMode(infra2, INPUT);
-    pinMode(infra3, INPUT);
-    pinMode(infra4, INPUT);
+  pinMode(infra1, INPUT); // Configura a porta de número 'infra1' como entrada digital
+  pinMode(infra2, INPUT); // Configura a porta de número 'infra2' como entrada digital
+  pinMode(infra3, INPUT); // Configura a porta de número 'infra3' como entrada digital
+  pinMode(infra4, INPUT); // Configura a porta de número 'infra4' como entrada digital
 
-    Serial.begin(9600);
+  // Habilita comunicação serial com baud rate de 9600 bytes/s
+  Serial.begin(9600);
 }
 
 void loop()
 {
-    if(millis()-timer1 >= 100)
-    {
-      timer1 = millis();
-      sinal1 = !digitalRead(infra1);
-      sinal2 = !digitalRead(infra2);
-      sinal3 = !digitalRead(infra3);
-      sinal4 = !digitalRead(infra4);
-    }
-    
-    if(millis()-timer2 >= 1000)
-    {
-      timer2 = millis();
-      Serial.print("------- ");
-      Serial.println(timer2);
-      Serial.print(sinal1);
-      Serial.print(sinal2);
-      Serial.print('-');
-      Serial.print(entrando1Esteira1);
-      Serial.print(entrando2Esteira1);
-      Serial.print(entrando3Esteira1);
-      Serial.print('-');
-      Serial.print(saindo1Esteira1);
-      Serial.print(saindo2Esteira1);
-      Serial.println(saindo3Esteira1);
-      Serial.print(sinal3);
-      Serial.println(sinal4);
-    }
-    
-    if(millis()-timer3 >= 1000)
-    {
-      timer3 = millis();
-      if(sinal1 && !sinal2 && !saindo2Esteira1)
-      {
-        Serial.println("Entrando na esteira 1, passo 1");
-        entrando1Esteira1 = true;
-      }
-      else if(sinal1 && sinal2 && (entrando1Esteira1 || entrando3Esteira1))
-      {
-        Serial.println("Entrando na esteira 1, passo 2");
-        entrando1Esteira1 = false;
-        entrando2Esteira1 = true;
-        entrando3Esteira1 = false;
-      }
-      else if(!sinal1 && sinal2 && entrando2Esteira1)
-      {
-        Serial.println("Entrando na esteira 1, passo 3");
-        entrando2Esteira1 = false;
-        entrando3Esteira1 = true;
-      }
-      else if(!sinal1 && !sinal2 && entrando3Esteira1)
-      {
-        Serial.print("Entrou na esteira 1: ");
-        Serial.print(++quantidadeEsteira1);
-        Serial.println(" itens.");
-        entrando3Esteira1 = false;
-      }
-      
-// ------------------------------------------------------------------------------
+  // Temporizador que capta os dados dos sensores
+  if (millis() - timer1 >= 5) // Lê sensores a cada 5 milissegundos
+  {
+    timer1 = millis(); // Atualiza timer
+    sinal1 = !digitalRead(infra1); // Lê sensor infra1. 0: nada na frente, 1: algo na frente
+    sinal2 = !digitalRead(infra2); // Lê sensor infra2. 0: nada na frente, 1: algo na frente
+    sinal3 = !digitalRead(infra3); // Lê sensor infra3. 0: nada na frente, 1: algo na frente
+    sinal4 = !digitalRead(infra4); // Lê sensor infra4. 0: nada na frente, 1: algo na frente
 
-      if(!sinal1 && sinal2 && (!entrando2Esteira1 || !entrando3Esteira1))
+    // Verifica se algo está entrando na esteira 1
+    if (algoEntrandoEsteira1)
+    {
+      if (sinal1 && !sinal2) // Se algo está entrando e sinal 1,0 -> passo 1
       {
-        Serial.println("Saindo da esteira 1, passo 1");
-        saindo1Esteira1 = true;
+        // Algo entrando na esteira 1 no primeiro passo
+        entrandoEsteira1Passo1 = true ;
+        entrandoEsteira1Passo2 = false;
+        entrandoEsteira1Passo3 = false;
       }
-      else if(sinal1 && sinal2 && (saindo1Esteira1 || saindo3Esteira1))
+      else if (sinal1 && sinal2) // Se algo está entrando e sinal 1,1 -> passo 2
       {
-        Serial.println("Saindo da esteira 1, passo 2");
-        saindo1Esteira1 = false;
-        saindo2Esteira1 = true;
-        saindo3Esteira1 = false;
+        // Algo entrando na esteira 1 no segundo passo
+        entrandoEsteira1Passo1 = false;
+        entrandoEsteira1Passo2 = true ;
+        entrandoEsteira1Passo3 = false;
       }
-      else if(sinal1 && !sinal2 && saindo2Esteira1)
+      else if (!sinal1 && sinal2) // Se algo está entrando e sinal 0,1 -> passo 3
       {
-        Serial.println("Saindo da esteira 1, passo 3");
-        saindo2Esteira1 = false;
-        saindo3Esteira1 = true;
+        // Algo entrando na esteira 1 no terceiro passo
+        entrandoEsteira1Passo1 = false;
+        entrandoEsteira1Passo2 = false;
+        entrandoEsteira1Passo3 = true ;
       }
-      else if(!sinal1 && !sinal2 && saindo3Esteira1)
+      else if (!sinal1 && !sinal2 && entrandoEsteira1Passo3) // Se algo está entrando, o sinal é 0,0 e estava no passo 3 -> entrou
       {
-        Serial.println("Saiu da esteira 1");
-        saindo3Esteira1 = false;
+        // Algo entrou na esteira 1
+        qtdItensEsteira1 = qtdItensEsteira1 + 1;
+        entrandoEsteira1Passo1 = false;
+        entrandoEsteira1Passo2 = false;
+        entrandoEsteira1Passo3 = false;
+      }
+      else if (!sinal1 && !sinal2)  // Se algo está entrando e sinal 0,0 -> objeto voltou pra fora
+      {
+        // Algo estava entrando na esteira voltou pra fora
+        algoEntrandoEsteira1 = false;
+        entrandoEsteira1Passo1 = false;
+        entrandoEsteira1Passo2 = false;
+        entrandoEsteira1Passo3 = false;
       }
     }
+    // Verifica se algo está saindo da esteira 1
+    else if (algoSaindoEsteira1)
+    {
+      if (!sinal1 && sinal2) // Se algo está saindo e sinal 0,1 -> passo 1
+      {
+        // Algo saindo da esteira 1 no primeiro passo de saída
+        saindoEsteira1Passo1 = true;
+        saindoEsteira1Passo2 = false;
+        saindoEsteira1Passo3 = false;
+      }
+      else if (sinal1 && sinal2) // Se algo está saindo e sinal 1,1 -> passo 2
+      {
+        // Algo saindo da esteira 1 no segundo passo de saída
+        saindoEsteira1Passo1 = false;
+        saindoEsteira1Passo2 = true;
+        saindoEsteira1Passo3 = false;
+      }
+      else if (sinal1 && !sinal2) // Se algo está saindo e sinal 1,0 -> passo 3
+      {
+        // Algo saindo da esteira 1 no terceiro passo de saída
+        saindoEsteira1Passo1 = false;
+        saindoEsteira1Passo2 = false;
+        saindoEsteira1Passo3 = true;
+      }
+      else if (!sinal1 && !sinal2 && saindoEsteira1Passo3) // Se algo está saindo, o sinal é 0,0 e estava no passo 3 -> saiu
+      {
+        if (!qtdItensEsteira1) // Se haviam zero itens na esteira
+        {
+          // Impossível algo ter saído de lá
+          Serial.println("Situação impossível!!! Não havia nada na esteira.");
+        }
+        else // Caso contrário
+        {
+          // Algo saiu da esteira
+          qtdItensEsteira1 = qtdItensEsteira1 - 1;
+        }
+        saindoEsteira1Passo1 = false;
+        saindoEsteira1Passo2 = false;
+        saindoEsteira1Passo3 = false;
+      }
+      else if (!sinal1 && !sinal2) // Se algo está saindo e sinal 0,0 -> objeto voltou para dentro
+      {
+        // Algo que estava saindo da esteira voltou para dentro
+        algoSaindoEsteira1 = false;
+        saindoEsteira1Passo1 = false;
+        saindoEsteira1Passo2 = false;
+        saindoEsteira1Passo3 = false;
+      }
+    }
+    // Se não tiver nada entrando nem saindo
+    else
+    {
+      if (sinal1 && !sinal2) // Verifica se agora tem algo entrando
+      {
+        algoEntrandoEsteira1 = true;
+      }
+      else if (!sinal1 && sinal2) // Ou se agora tem algo saindo
+      {
+        algoSaindoEsteira1 = true;
+      }
+      else  // Ou se continua sem ter algo entrando ou saindo
+      {
+        algoEntrandoEsteira1 = false;
+        algoSaindoEsteira1 = false;
+      }
+    }
+  }
+
+  if (millis() - timer2 >= 1000)
+  {
+    timer2 = millis();
+    Serial.print("------- ");
+    Serial.println(timer2 / 1000); // Imprime o tempo em segundos
+    // Descomentar as linhas de baixo para verificar melhor a lógica por trás do programa!!
+    //    Serial.print(sinal1);
+    //    Serial.print(sinal2);
+    //    Serial.print('-');
+    //    Serial.print(entrandoEsteira1Passo1);
+    //    Serial.print(entrandoEsteira1Passo2);
+    //    Serial.print(entrandoEsteira1Passo3);
+    //    Serial.print('-');
+    //    Serial.print(saindoEsteira1Passo1);
+    //    Serial.print(saindoEsteira1Passo2);
+    //    Serial.println(saindoEsteira1Passo3);
+    //    Serial.print(sinal3);
+    //    Serial.print(sinal4);
+    //    Serial.print('-');
+    //    Serial.print(entrandoEsteira2Passo1);
+    //    Serial.print(entrandoEsteira2Passo2);
+    //    Serial.print(entrandoEsteira2Passo3);
+    //    Serial.print('-');
+    //    Serial.print(saindoEsteira2Passo1);
+    //    Serial.print(saindoEsteira2Passo2);
+    //    Serial.println(saindoEsteira2Passo3);
+
+    // Imprime a quantidade de itens na esteira 1
+    Serial.print("Esteira 1: ");
+    Serial.println(qtdItensEsteira1);
+    // Imprime a quantidade de itens na esteira 2
+    Serial.print("Esteira 2: ");
+    Serial.println(qtdItensEsteira2);
+  }
 }
