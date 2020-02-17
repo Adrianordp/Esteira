@@ -52,7 +52,7 @@ unsigned int qtdItensEsteira2;
 unsigned long timer1;
 unsigned long timer2;
 
-void setup()
+void setup() // Configura o Arduino
 {
   pinMode(infra1, INPUT); // Configura a porta de número 'infra1' como entrada digital
   pinMode(infra2, INPUT); // Configura a porta de número 'infra2' como entrada digital
@@ -63,7 +63,7 @@ void setup()
   Serial.begin(9600);
 }
 
-void loop()
+void loop() // Executa infinitamente e repetidamente
 {
   // Temporizador que capta os dados dos sensores
   if (millis() - timer1 >= 5) // Lê sensores a cada 5 milissegundos
@@ -107,32 +107,33 @@ void loop()
     }
   }
 
+  // Exibe a contagem das esteiras pela comunicação serial
   if (millis() - timer2 >= 1000)
   {
     timer2 = millis();
     Serial.print("------- ");
     Serial.println(timer2 / 1000); // Imprime o tempo em segundos
-    // Descomentar as linhas de baixo para verificar melhor a lógica por trás do programa!!
-    //    Serial.print(sinal1);
-    //    Serial.print(sinal2);
-    //    Serial.print('-');
-    //    Serial.print(entrandoEsteira1Passo1);
-    //    Serial.print(entrandoEsteira1Passo2);
-    //    Serial.print(entrandoEsteira1Passo3);
-    //    Serial.print('-');
-    //    Serial.print(saindoEsteira1Passo1);
-    //    Serial.print(saindoEsteira1Passo2);
-    //    Serial.println(saindoEsteira1Passo3);
-    //    Serial.print(sinal3);
-    //    Serial.print(sinal4);
-    //    Serial.print('-');
-    //    Serial.print(entrandoEsteira2Passo1);
-    //    Serial.print(entrandoEsteira2Passo2);
-    //    Serial.print(entrandoEsteira2Passo3);
-    //    Serial.print('-');
-    //    Serial.print(saindoEsteira2Passo1);
-    //    Serial.print(saindoEsteira2Passo2);
-    //    Serial.println(saindoEsteira2Passo3);
+//     Descomentar as linhas de baixo para verificar melhor a lógica por trás do programa!!
+//        Serial.print(sinal1);
+//        Serial.print(sinal2);
+//        Serial.print('-');
+//        Serial.print(entrandoEsteira1Passo1);
+//        Serial.print(entrandoEsteira1Passo2);
+//        Serial.print(entrandoEsteira1Passo3);
+//        Serial.print('-');
+//        Serial.print(saindoEsteira1Passo1);
+//        Serial.print(saindoEsteira1Passo2);
+//        Serial.println(saindoEsteira1Passo3);
+//        Serial.print(sinal3);
+//        Serial.print(sinal4);
+//        Serial.print('-');
+//        Serial.print(entrandoEsteira2Passo1);
+//        Serial.print(entrandoEsteira2Passo2);
+//        Serial.print(entrandoEsteira2Passo3);
+//        Serial.print('-');
+//        Serial.print(saindoEsteira2Passo1);
+//        Serial.print(saindoEsteira2Passo2);
+//        Serial.println(saindoEsteira2Passo3);
 
     // Imprime a quantidade de itens na esteira 1
     Serial.print("Esteira 1: ");
@@ -175,7 +176,7 @@ void acompanhaEntrandoEsteira1()
     entrandoEsteira1Passo2 = false;
     entrandoEsteira1Passo3 = false;
   }
-  else if (!sinal1 && !sinal2)  // Se algo está entrando e sinal 0,0 -> objeto voltou pra fora
+  else if (!sinal1 && !sinal2)  // Se algo está entrando e sinal 0,0 -> objeto voltou pra fora ou já entrou
   {
     // Algo estava entrando na esteira voltou pra fora
     algoEntrandoEsteira1 = false;
@@ -210,7 +211,7 @@ void acompanhaSaindoEsteira1()
   }
   else if (!sinal1 && !sinal2 && saindoEsteira1Passo3) // Se algo está saindo, o sinal é 0,0 e estava no passo 3 -> saiu
   {
-    if (!qtdItensEsteira1) // Se haviam zero itens na esteira
+    if (qtdItensEsteira1 == 0) // Se haviam zero itens na esteira
     {
       // Impossível algo ter saído de lá
       Serial.println("Situação impossível!!! Não havia nada na esteira 1.");
